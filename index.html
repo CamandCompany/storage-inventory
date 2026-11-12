@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Storage Unit Inventory</title>
+<title>Field Family ExtraSpace Storage Burbank Unit 895 Catalogue</title>
 <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27&gt;&lt;text y=%2790%27 font-size=%2790%27&gt;📦&lt;/text&gt;&lt;/svg&gt;">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -91,7 +91,7 @@ function render(){
 }
 function homeView(){
  var ql=q.trim().toLowerCase(),list=boxes.slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'',undefined,{numeric:true})});
- var out='<div class="row sp"><h1>Storage Unit</h1><span class="row">'+(boxes.length?'<button data-a="sel">'+(selMode?'Done':'Select')+'</button>':'')+'<button class="p" data-a="newbox">+ Box</button></span></div>'+
+ var out='<div class="row sp"><h1>Field Family ExtraSpace Storage Burbank Unit 895 Catalogue</h1><span class="row">'+(boxes.length?'<button data-a="sel">'+(selMode?'Done':'Select')+'</button>':'')+'<button class="p" data-a="newbox">+ Box</button></span></div>'+
  '<input id="q" type="search" placeholder="Search all boxes for an item…" value="'+esc(q)+'">';
  if(ql){
   var hits=[];list.forEach(function(b){(b.items||[]).forEach(function(it){if((it.name+' '+(it.note||'')).toLowerCase().indexOf(ql)>-1||(b.name||'').toLowerCase().indexOf(ql)>-1&&!hits.length&&false)hits.push({b:b,it:it})})});
@@ -238,7 +238,7 @@ function exportCsv(){
 window.addEventListener('hashchange',function(){selMode=false;sel={};closeM();render()});
 downloads={save:function(o){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([o.data],{type:'text/csv;charset=utf-8'}));a.download=o.filename;document.body.appendChild(a);a.click();a.remove();return Promise.resolve()}};
 function loginView(msg){
- app.innerHTML='<h1>Storage Unit</h1><p class="mut">Sign in to view and edit the inventory.</p><input id="em" type="email" placeholder="Email" autocomplete="username"><div style="height:8px"></div><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><p><button class="p" id="sg" style="width:100%">Sign in</button></p><p><button id="ml" style="width:100%">Email me a sign-in link instead</button></p>'+(msg?'<div class="msg">'+esc(msg)+'</div>':'');
+ app.innerHTML='<h1>Field Family ExtraSpace Storage Burbank Unit 895 Catalogue</h1><p class="mut">Sign in to view and edit the inventory.</p><input id="em" type="email" placeholder="Email" autocomplete="username"><div style="height:8px"></div><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><p><button class="p" id="sg" style="width:100%">Sign in</button></p><p><button id="ml" style="width:100%">Email me a sign-in link instead</button></p>'+(msg?'<div class="msg">'+esc(msg)+'</div>':'');
  function em(){return document.getElementById('em').value.trim()}
  document.getElementById('sg').onclick=function(){var e=em(),pw=document.getElementById('pw').value;if(!e||!pw)return;
   sb.auth.signInWithPassword({email:e,password:pw}).then(function(r){if(r.error)loginView('Sign-in failed: '+r.error.message)})};
