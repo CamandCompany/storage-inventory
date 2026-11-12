@@ -238,9 +238,12 @@ function exportCsv(){
 window.addEventListener('hashchange',function(){selMode=false;sel={};closeM();render()});
 downloads={save:function(o){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([o.data],{type:'text/csv;charset=utf-8'}));a.download=o.filename;document.body.appendChild(a);a.click();a.remove();return Promise.resolve()}};
 function loginView(msg){
- app.innerHTML='<h1>Storage Unit</h1><p class="mut">Sign in to view and edit the inventory.</p><input id="em" type="email" placeholder="Email" autocomplete="email"><p><button class="p" id="sg" style="width:100%">Email me a sign-in link</button></p>'+(msg?'<div class="msg">'+esc(msg)+'</div>':'');
- document.getElementById('sg').onclick=function(){var em=document.getElementById('em').value.trim();if(!em)return;
-  sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:base,shouldCreateUser:false}}).then(function(r){loginView(r.error?'Could not send link: '+r.error.message:'Check your email, then open the link on this device.')})}}
+ app.innerHTML='<h1>Storage Unit</h1><p class="mut">Sign in to view and edit the inventory.</p><input id="em" type="email" placeholder="Email" autocomplete="username"><div style="height:8px"></div><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><p><button class="p" id="sg" style="width:100%">Sign in</button></p><p><button id="ml" style="width:100%">Email me a sign-in link instead</button></p>'+(msg?'<div class="msg">'+esc(msg)+'</div>':'');
+ function em(){return document.getElementById('em').value.trim()}
+ document.getElementById('sg').onclick=function(){var e=em(),pw=document.getElementById('pw').value;if(!e||!pw)return;
+  sb.auth.signInWithPassword({email:e,password:pw}).then(function(r){if(r.error)loginView('Sign-in failed: '+r.error.message)})};
+ document.getElementById('ml').onclick=function(){var e=em();if(!e)return;
+  sb.auth.signInWithOtp({email:e,options:{emailRedirectTo:base,shouldCreateUser:false}}).then(function(r){loginView(r.error?'Could not send link: '+r.error.message:'Check your email, then open the link on this device.')})}}
 if(!window.supabase||SUPABASE_URL.indexOf('PASTE')===0){app.innerHTML='<div class="msg">Setup needed: add your Supabase project URL and key near the top of the script in index.html (see README.md).</div>'}
 else{
  sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{flowType:'pkce',detectSessionInUrl:true,persistSession:true}});
