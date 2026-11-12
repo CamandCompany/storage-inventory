@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Storage Unit Inventory</title>
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27&gt;&lt;text y=%2790%27 font-size=%2790%27&gt;📦&lt;/text&gt;&lt;/svg&gt;">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1f2421;--mut:#6b726d;--ac:#2f6f4f;--acx:#fff;--bd:#e2e0d8;--dg:#b3392f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#181b19;--card:#222623;--tx:#eceee9;--mut:#9aa39c;--ac:#5fb88a;--acx:#10231a;--bd:#363b37;--dg:#e5776d}}
+:root[data-theme="dark"]{--bg:#181b19;--card:#222623;--tx:#eceee9;--mut:#9aa39c;--ac:#5fb88a;--acx:#10231a;--bd:#363b37;--dg:#e5776d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:.2rem 0 .8rem}
+.row{display:flex;gap:8px;align-items:center}
+.sp{justify-content:space-between}
+input,textarea{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit}
+button{font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+button.p{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+button.d{color:var(--dg)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;margin:10px 0;cursor:pointer}
+.card h3{margin:0;font-size:1.05rem}
+.mut{color:var(--mut);font-size:.9rem}
+.thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;background:var(--bd);flex:none}
+.hero{width:100%;max-height:240px;object-fit:cover;border-radius:14px;margin:8px 0}
+.item{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px;margin:8px 0}
+.item .t{flex:1;min-width:0}
+.item b{display:block;overflow-wrap:anywhere}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--bg);width:100%;max-width:640px;border-radius:18px 18px 0 0;padding:16px;max-height:90vh;overflow:auto;display:grid;gap:10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:8px 0}.tile{background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer}.tile img,.tile .ph{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--bd)}.tile .ph{display:flex;align-items:center;justify-content:center;color:var(--mut)}.tile .c{padding:8px 10px}.tile b{display:block;overflow-wrap:anywhere}@media(min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}.big{width:100%;max-height:50vh;object-fit:contain;border-radius:12px;background:var(--bd)}
+.labels{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.label{background:#fff;color:#000;border:1px dashed #999;padding:10px;text-align:center;border-radius:6px;break-inside:avoid}
+.label svg{width:100%;max-width:170px;height:auto}
+.label .n{font-size:1.5rem;font-weight:800}
+.hide{display:none}
+.msg{padding:10px 12px;border-radius:10px;background:var(--card);border:1px solid var(--bd);margin:8px 0}
+@media print{body.pq main{display:none}body.pq .modal{position:static;background:none;display:block}body.pq .sheet{background:none;padding:0;max-height:none;overflow:visible}body{background:#fff}.noprint{display:none!important}main{max-width:none;padding:0}}
+</style>
+</head>
+<body>
+<main id="app"><p class="mut">Loading…</p></main>
+<div id="modal"></div>
+<script>
+(function(){
+var app=document.getElementById('app'),modal=document.getElementById('modal');
+var selMode=false,sel={},bulkBusy=false,gridView=true,authed=false,sb=null,downloads=null,boxes=[],ready=false,q='',err='';
+var base=location.origin+location.pathname;
+// Supabase project URL and public (anon) key. Safe to publish; data is protected by sign-in rules.
+var SUPABASE_URL='https://slvwbngmnzqaiyrofqpj.supabase.co',SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsdndibmdtbnpxYWl5cm9mcXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0NTk4ODQsImV4cCI6MjExMDAzNTg4NH0._gVrSN56uxHpLtrnYZUyQpa5oQIEnMvF92G32xO57kQ';
+// ===========================================================
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function img(id){return id?SUPABASE_URL+'/storage/v1/object/public/photos/'+id:''}
+function uid(){return Math.random().toString(36).slice(2,7)}
+function route(){var h=location.hash.slice(1);if(h==='labels')return{v:'labels'};if(h.indexOf('box-')===0)return{v:'box',id:h.slice(4).split(/[?&\/]/)[0]};return{v:'home'}}
+function go(h){location.hash=h||'';}
+function qrSvg(url){var qr=qrcode(0,'M');qr.addData(url);qr.make();return qr.createSvgTag({cellSize:4,margin:2,scalable:true})}
+
+// ---------- data ----------
+function fail(m){return function(e){err=m+(e&&e.message||e);render()}}
+function saveBox(b){var d=Object.assign({},b),id=d.id;delete d.id;
+ var i=boxes.findIndex(function(x){return x.id===id}),nb=Object.assign({},b);if(i<0)boxes.push(nb);else boxes[i]=nb;
+ return sb.from('boxes').upsert({id:id,data:d}).then(function(r){if(r.error)throw r.error}).catch(fail('Could not save: '))}
+function delBox(id){boxes=boxes.filter(function(x){return x.id!==id});return sb.from('boxes').delete().eq('id',id).then(function(r){if(r.error)throw r.error}).catch(fail('Could not delete: '))}
+function load(){return sb.from('boxes').select('id,data').then(function(r){if(r.error)throw r.error;boxes=r.data.map(function(x){var o=Object.assign({},x.data);o.id=x.id;return o});ready=true;if(!modal.firstChild)render()}).catch(function(e){ready=true;err='Could not load: '+(e&&e.message||e);render()})}
+function getBox(id){var k=String(id).toLowerCase();return boxes.find(function(b){return String(b.id).toLowerCase()===k})}
+
+// ---------- photos ----------
+function shrink(file){return new Promise(function(res,rej){
+ var r=new FileReader();r.onerror=rej;r.onload=function(){var im=new Image();im.onerror=rej;im.onload=function(){
+  var m=1400,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');
+  c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  c.toBlob(function(b){b?res(b):rej(new Error('encode failed'))},'image/jpeg',0.82)};im.src=r.result};r.readAsDataURL(file)})}
+function upload(file){return shrink(file).then(function(b){var name=uid()+uid()+uid()+'.jpg';return sb.storage.from('photos').upload(name,b,{contentType:'image/jpeg',cacheControl:'31536000'}).then(function(r){if(r.error)throw r.error;return name})})}
+
+// ---------- views ----------
+function render(){
+ var r=route();
+ if(!authed)return;
+ if(!ready){app.innerHTML='<p class="mut">Loading…</p>';return}
+ var h=err?'<div class="msg" style="color:var(--dg)">'+esc(err)+'</div>':'';
+ if(r.v==='labels')app.innerHTML=h+labelsView();
+ else if(r.v==='box')app.innerHTML=h+boxView(r.id);
+ else app.innerHTML=h+homeView();
+ if(selMode&&r.v!=='labels')app.innerHTML+=selBar();
+ bind();
+}
+function homeView(){
+ var ql=q.trim().toLowerCase(),list=boxes.slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'',undefined,{numeric:true})});
+ var out='<div class="row sp"><h1>Storage Unit</h1><span class="row">'+(boxes.length?'<button data-a="sel">'+(selMode?'Done':'Select')+'</button>':'')+'<button class="p" data-a="newbox">+ Box</button></span></div>'+
+ '<input id="q" type="search" placeholder="Search all boxes for an item…" value="'+esc(q)+'">';
+ if(ql){
+  var hits=[];list.forEach(function(b){(b.items||[]).forEach(function(it){if((it.name+' '+(it.note||'')).toLowerCase().indexOf(ql)>-1||(b.name||'').toLowerCase().indexOf(ql)>-1&&!hits.length&&false)hits.push({b:b,it:it})})});
+  out+='<p class="mut">'+hits.length+' match'+(hits.length===1?'':'es')+'</p>';
+  hits.forEach(function(h){out+='<div class="item" data-go="box-'+h.b.id+'" style="cursor:pointer">'+(h.it.photo?'<img class="thumb" src="'+img(h.it.photo)+'">':'')+'<div class="t"><b>'+esc(h.it.name)+'</b><span class="mut">in '+esc(h.b.name)+'</span>'+(h.it.out?'<span style="color:var(--dg);font-size:.85rem">● Checked out'+(h.it.outTo?' – '+esc(h.it.outTo):'')+'</span>':'')+'</div></div>'});
+ } else {
+  var outs=[];list.forEach(function(b){(b.items||[]).forEach(function(it){if(it.out)outs.push({b:b,it:it})})});
+  if(outs.length){out+='<h3 style="margin:16px 0 4px">Checked out ('+outs.length+')</h3>';outs.forEach(function(h){out+='<div class="item" data-go="box-'+h.b.id+'" style="cursor:pointer"><div class="t"><b>'+esc(h.it.name)+'</b><span class="mut">from '+esc(h.b.name)+(h.it.outTo?' → '+esc(h.it.outTo):'')+'</span></div></div>'})}
+  if(!list.length)out+='<div class="msg">No boxes yet. Tap <b>+ Box</b> to add your first one, then print its QR label.</div>';
+  list.forEach(function(b){var n=(b.items||[]).length;out+='<div class="card" '+(selMode?'data-sel="'+b.id+'"':'data-go="box-'+b.id+'"')+'><div class="row">'+(selMode?'<span style="font-size:1.4rem">'+(sel[b.id]?'☑':'☐')+'</span>':'')+(b.photo?'<img class="thumb" src="'+img(b.photo)+'">':'')+'<div><h3>'+esc(b.name)+'</h3><span class="mut">'+n+' item'+(n===1?'':'s')+(b.location?' · '+esc(b.location):'')+'</span></div></div></div>'});
+  if(list.length)out+='<p><button data-go="labels">Print QR labels</button> <button data-a="export">Export CSV</button> <button data-a="signout">Sign out</button></p>';
+ }
+ return out;
+}
+function boxView(id){
+ var b=getBox(id);
+ if(!b)return '<p><button data-go="">← All boxes</button></p><div class="msg">Box not found (looked for “'+esc(id)+'”; '+boxes.length+' box'+(boxes.length===1?'':'es')+' loaded).</div>';
+ var items=b.items||[];
+ var out='<div class="noprint row sp"><button data-go="">← All boxes</button><span class="row"><button data-a="qr">QR code</button><button data-a="editbox">Edit box</button></span></div><h1>'+esc(b.name)+'</h1>'+(b.location?'<div class="mut">'+esc(b.location)+'</div>':'')+(b.notes?'<p>'+esc(b.notes)+'</p>':'')+
+ (b.photo?'<img class="hero" src="'+img(b.photo)+'" alt="Photo of box contents">':'')+
+ '<div class="row sp"><b>'+items.length+' item'+(items.length===1?'':'s')+'</b><span class="row">'+(items.length?'<button data-a="sel">'+(selMode?'Done':'Select')+'</button>':'')+'<button data-a="view">'+(gridView?'List':'Photos')+'</button></span></div><div class="row" style="margin:8px 0"><button class="p" data-a="bulk" style="flex:1">📷 Add photos</button><button data-a="newitem" style="flex:1">+ Add one item</button></div><input id="bulk" type="file" accept="image/*" multiple class="hide">';
+ if(!items.length)out+='<div class="msg">This box is empty. Tap Add photos to take or pick pictures of what is inside.</div>';
+ var un=items.filter(function(x){return x.name==='Unnamed item'}).length;if(un)out+='<div class="msg">'+un+' unnamed. Tap a photo to give it a name.</div>';
+ if(gridView&&items.length){out+='<div class="grid">';items.forEach(function(it,i){out+='<div class="tile" '+(selMode?'data-sel="'+ikey(it,i)+'" style="'+(sel[ikey(it,i)]?'outline:3px solid var(--ac)':'')+'"':'data-edit="'+i+'"')+'>'+(selMode?'<div style="padding:6px 10px;font-size:1.3rem">'+(sel[ikey(it,i)]?'☑':'☐')+'</div>':'')+(it.photo?'<img src="'+img(it.photo)+'" loading="lazy" decoding="async" alt="">':'<div class="ph">No photo</div>')+'<div class="c"><b>'+esc(it.name)+(it.qty>1?' ×'+it.qty:'')+'</b>'+(it.out?'<span style="color:var(--dg);font-size:.85rem">● Out'+(it.outTo?' – '+esc(it.outTo):'')+'</span>':(it.note?'<span class="mut">'+esc(it.note)+'</span>':''))+'</div></div>'});return out+'</div>'}
+ items.forEach(function(it,i){out+='<div class="item" '+(selMode?'data-sel="'+ikey(it,i)+'"':'data-edit="'+i+'"')+' style="cursor:pointer">'+(selMode?'<span style="font-size:1.4rem">'+(sel[ikey(it,i)]?'☑':'☐')+'</span>':'')+(it.photo?'<img class="thumb" src="'+img(it.photo)+'">':'')+'<div class="t"><b>'+esc(it.name)+(it.qty>1?' <span class="mut">×'+it.qty+'</span>':'')+(it.out?' <span style="color:var(--dg);font-size:.85rem">● Out'+(it.outTo?' – '+esc(it.outTo):'')+'</span>':'')+'</b>'+(it.note?'<span class="mut">'+esc(it.note)+'</span>':'')+'</div></div>'});
+ return out;
+}
+function labelsView(){
+ var list=boxes.slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'',undefined,{numeric:true})});
+ var out='<div class="noprint row sp"><button data-go="">← Back</button><button class="p" data-a="print">Print</button></div><h1 class="noprint">QR labels</h1><p class="mut noprint">Print one or two per box and cover with clear tape. Labels link to this page, so anyone scanning needs access to it.</p><div class="labels">';
+ list.forEach(function(b){out+='<div class="label">'+qrSvg(base+'#box-'+b.id)+'<div class="n">'+esc(b.name)+'</div></div>'});
+ return out+'</div>';
+}
+
+// ---------- events ----------
+function bind(){
+ var s=document.getElementById('q');
+ if(s)s.oninput=function(){q=s.value;var p=s.selectionStart;render();var n=document.getElementById('q');n.focus();n.setSelectionRange(p,p)};
+ app.querySelectorAll('[data-go]').forEach(function(e){e.onclick=function(){go(e.getAttribute('data-go'))}});
+ app.querySelectorAll('[data-a]').forEach(function(e){e.onclick=function(){act(e.getAttribute('data-a'))}});
+ app.querySelectorAll('[data-edit]').forEach(function(e){e.onclick=function(){itemForm(+e.getAttribute('data-edit'))}});
+ app.querySelectorAll('[data-sel]').forEach(function(e){e.onclick=function(){var k=e.getAttribute('data-sel');if(sel[k])delete sel[k];else sel[k]=1;render()}});
+ var bk=document.getElementById('bulk');if(bk)bk.onchange=function(){bulkAdd(Array.prototype.slice.call(bk.files))};
+}
+function act(a){var r=route();
+ if(a==='newbox')boxForm(null);
+ else if(a==='editbox')boxForm(getBox(r.id));
+ else if(a==='newitem')itemForm(-1);
+ else if(a==='print')window.print();
+ else if(a==='export')exportCsv();
+ else if(a==='qr')qrSheet(getBox(r.id));
+ else if(a==='view'){gridView=!gridView;render()}
+ else if(a==='bulk')document.getElementById('bulk').click();
+ else if(a==='sel'){selMode=!selMode;sel={};render()}
+ else if(a==='delsel')delSelected();
+ else if(a==='signout')sb.auth.signOut();
+}
+function closeM(){modal.innerHTML='';render()}
+function sheet(html){modal.innerHTML='<div class="modal"><div class="sheet">'+html+'</div></div>';
+ modal.querySelector('.modal').onclick=function(e){if(e.target.classList.contains('modal'))closeM()}}
+function photoField(cur){return '<img id="pv" class="big '+(cur?'':'hide')+'" src="'+img(cur)+'" alt=""><label><span class="mut">Photo</span><input id="pf" type="file" accept="image/*"></label><div id="ps" class="mut"></div>'}
+function wirePhoto(state){var f=document.getElementById('pf');if(!f)return;
+ f.onchange=function(){var file=f.files[0];if(!file)return;var st=document.getElementById('ps');st.textContent='Uploading…';state.busy=true;
+  upload(file).then(function(id){state.photo=id;state.busy=false;st.textContent='Photo added';var pv=document.getElementById('pv');pv.src=img(id);pv.classList.remove('hide')}).catch(function(e){state.busy=false;st.textContent='Upload failed: '+(e&&e.message||e)})}}
+
+function qrSheet(b){if(!b)return;
+ var u=base+'#box-'+b.id;
+ sheet('<div class="label" id="ql">'+qrSvg(u)+'<div class="n">'+esc(b.name)+'</div></div><div class="row noprint"><button class="p" id="qp" style="flex:1">Print</button><button id="qx">Close</button></div><div class="mut noprint" style="overflow-wrap:anywhere">Opens: '+esc(u)+'</div>');
+ document.getElementById('qx').onclick=closeM;
+ document.getElementById('qp').onclick=function(){document.body.classList.add('pq');window.onafterprint=function(){document.body.classList.remove('pq')};window.print();setTimeout(function(){document.body.classList.remove('pq')},3000)}}
+
+function ask(msg,yes,label){
+ sheet('<p style="margin:0">'+esc(msg)+'</p><div class="row"><button class="d" id="ay" style="flex:1">'+(label||'Delete')+'</button><button id="an">Cancel</button></div>');
+ document.getElementById('an').onclick=closeM;
+ document.getElementById('ay').onclick=function(){modal.innerHTML='';yes()}}
+function ikey(it,i){return it.id||('#'+i)}
+function selBar(){var n=Object.keys(sel).length;return '<div class="noprint" style="position:sticky;bottom:0;padding:10px 0;background:var(--bg)"><div class="row"><button class="d" data-a="delsel" style="flex:1"'+(n?'':' disabled')+'>Delete selected ('+n+')</button><button data-a="sel">Cancel</button></div></div>'}
+function delSelected(){
+ var r=route(),keys=Object.keys(sel);if(!keys.length)return;
+ var n=keys.length;ask(r.v==='box'?'Delete '+n+' item'+(n===1?'':'s')+' from this box?':'Delete '+n+' box'+(n===1?'':'es')+' and everything listed in '+(n===1?'it':'them')+'? Their printed QR codes will stop working.',function(){doDelete(r,keys)})}
+function doDelete(r,keys){
+ if(r.v==='box'){var b=getBox(r.id);if(!b)return;
+  
+  var nb=Object.assign({},b);nb.items=(b.items||[]).filter(function(it,i){return!sel[ikey(it,i)]});
+  selMode=false;sel={};saveBox(nb).then(render)}
+ else{
+  
+  selMode=false;sel={};Promise.all(keys.map(function(id){return delBox(id)})).then(render)}}
+function putItem(items,ni,i){var k=items.findIndex(function(x){return x.id===ni.id});if(k<0&&i>=0)k=i;if(k>=0)items[k]=ni;else items.push(ni);return items}
+
+function bulkAdd(files){
+ if(bulkBusy||!files.length)return;bulkBusy=true;var id=route().id,ok=[],failed=0;err='';
+ sheet('<h2 style="margin:0">Adding photos</h2><div id="bp" class="mut">Uploading 1 of '+files.length+'…</div>');
+ function next(k){
+  if(k>=files.length)return finish();
+  var bp=document.getElementById('bp');if(bp)bp.textContent='Uploading '+(k+1)+' of '+files.length+'…';
+  upload(files[k]).then(function(pid){ok.push(pid)}).catch(function(){failed++}).then(function(){next(k+1)})}
+ function finish(){
+  bulkBusy=false;var b=getBox(id);if(!b||!ok.length){err='Photos could not be uploaded.';return closeM()}
+  var nb=Object.assign({},b);nb.items=(b.items||[]).concat(ok.map(function(pid){return{id:'i'+uid()+uid(),name:'Unnamed item',qty:1,note:'',photo:pid,out:false,outTo:''}}));
+  saveBox(nb).then(function(){if(failed)err=failed+' photo'+(failed===1?'':'s')+' failed to upload.';closeM()})}
+ next(0)}
+
+function boxForm(b){
+ var st={photo:b&&b.photo||'',nid:uid()+uid().slice(0,2),saving:false};
+ sheet('<h2 style="margin:0">'+(b?'Edit box':'New box')+'</h2><input id="bn" placeholder="Box name (e.g. Box 7 – Camping)" value="'+esc(b&&b.name)+'"><input id="bl" placeholder="Location in unit (optional)" value="'+esc(b&&b.location)+'"><textarea id="bt" rows="2" placeholder="Notes (optional)">'+esc(b&&b.notes)+'</textarea>'+photoField(st.photo)+
+ '<div class="row"><button class="p" id="ok" style="flex:1">Save</button><button id="cx">Cancel</button>'+(b?'<button class="d" id="rm">Delete</button>':'')+'</div>');
+ wirePhoto(st);
+ document.getElementById('cx').onclick=closeM;
+ document.getElementById('ok').onclick=function(){
+  if(st.busy||st.saving)return;var name=document.getElementById('bn').value.trim();if(!name){document.getElementById('bn').focus();return}
+  var nb=b?Object.assign({},getBox(b.id)||b):{id:st.nid,items:[]};
+  nb.name=name;nb.location=document.getElementById('bl').value.trim();nb.notes=document.getElementById('bt').value.trim();nb.photo=st.photo;st.saving=true;this.disabled=true;
+  saveBox(nb).then(function(){closeM();if(!b){if(!getBox(nb.id))boxes.push(nb);go('box-'+nb.id)}})};
+ var rm=document.getElementById('rm');
+ if(rm)rm.onclick=function(){ask('Delete this box and its list? Its printed QR code will stop working.',function(){delBox(b.id);go('')})};
+}
+function itemForm(i){
+ var b=getBox(route().id);if(!b)return;var it=i>=0?b.items[i]:null,st={photo:it&&it.photo||'',iid:(it&&it.id)||('i'+uid()+uid()),saving:false};
+ sheet('<h2 style="margin:0">'+(it?'Edit item':'Add item')+'</h2><input id="in" placeholder="Item name" value="'+esc(it&&it.name)+'"><div class="row"><input id="iq" type="number" min="1" inputmode="numeric" placeholder="Qty" value="'+(it&&it.qty||1)+'" style="width:90px"><input id="io" placeholder="Note (optional)" value="'+esc(it&&it.note)+'"></div><label class="mut">Box<select id="ib" style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit">'+boxes.map(function(x){return '<option value="'+x.id+'"'+(x.id===b.id?' selected':'')+'>'+esc(x.name)+'</option>'}).join('')+'</select></label><label class="row"><input type="checkbox" id="io2" style="width:auto"'+(it&&it.out?' checked':'')+'> Checked out</label><input id="ot" placeholder="Who has it / where it went" value="'+esc(it&&it.outTo)+'">'+photoField(st.photo)+
+ '<div class="row"><button class="p" id="ok" style="flex:1">Save</button><button id="cx">Cancel</button>'+(it?'<button class="d" id="rm">Remove</button>':'')+'</div>');
+ wirePhoto(st);
+ document.getElementById('cx').onclick=closeM;
+ document.getElementById('ok').onclick=function(){
+  if(st.busy||st.saving)return;var name=document.getElementById('in').value.trim();if(!name){document.getElementById('in').focus();return}
+  var cb=getBox(b.id)||b,nb=Object.assign({},cb);nb.items=(cb.items||[]).slice();st.saving=true;this.disabled=true;
+  var ni={id:st.iid,name:name,qty:Math.max(1,parseInt(document.getElementById('iq').value,10)||1),note:document.getElementById('io').value.trim(),photo:st.photo,out:document.getElementById('io2').checked,outTo:document.getElementById('ot').value.trim()};
+  var tid=document.getElementById('ib').value;
+  if(tid!==b.id&&getBox(tid)){var tb=getBox(tid),tn=Object.assign({},tb);if(i>=0)nb.items.splice(i,1);tn.items=(tb.items||[]).concat([ni]);saveBox(tn)}
+  else putItem(nb.items,ni,i);
+  saveBox(nb).then(closeM)};
+ var rm=document.getElementById('rm');
+ if(rm)rm.onclick=function(){var nb=Object.assign({},b);nb.items=b.items.filter(function(_,k){return k!==i});saveBox(nb).then(closeM)};
+}
+
+function csvCell(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function exportCsv(){
+ if(!downloads){err='Export is not available in this view.';render();return}
+ var rows=[['Box','Location','Item','Qty','Note','Checked out','Checked out to']];
+ boxes.slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'',undefined,{numeric:true})}).forEach(function(b){var its=b.items||[];if(!its.length)rows.push([b.name,b.location||'','','','','','']);its.forEach(function(it){rows.push([b.name,b.location||'',it.name,it.qty||1,it.note||'',it.out?'Yes':'',it.outTo||''])})});
+ downloads.save({filename:'storage-inventory.csv',data:'\ufeff'+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n')}).catch(function(e){if(!e||e.code!=='dismissed'){err='Could not export: '+(e&&e.message||e);render()}})}
+
+// ---------- boot ----------
+window.addEventListener('hashchange',function(){selMode=false;sel={};closeM();render()});
+downloads={save:function(o){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([o.data],{type:'text/csv;charset=utf-8'}));a.download=o.filename;document.body.appendChild(a);a.click();a.remove();return Promise.resolve()}};
+function loginView(msg){
+ app.innerHTML='<h1>Storage Unit</h1><p class="mut">Sign in to view and edit the inventory.</p><input id="em" type="email" placeholder="Email" autocomplete="email"><p><button class="p" id="sg" style="width:100%">Email me a sign-in link</button></p>'+(msg?'<div class="msg">'+esc(msg)+'</div>':'');
+ document.getElementById('sg').onclick=function(){var em=document.getElementById('em').value.trim();if(!em)return;
+  sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:base,shouldCreateUser:false}}).then(function(r){loginView(r.error?'Could not send link: '+r.error.message:'Check your email, then open the link on this device.')})}}
+if(!window.supabase||SUPABASE_URL.indexOf('PASTE')===0){app.innerHTML='<div class="msg">Setup needed: add your Supabase project URL and key near the top of the script in index.html (see README.md).</div>'}
+else{
+ sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{flowType:'pkce',detectSessionInUrl:true,persistSession:true}});
+ sb.auth.onAuthStateChange(function(ev,session){
+  if(session){var first=!authed;authed=true;if(first||ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'){if(first)render();load()}}
+  else{authed=false;ready=false;boxes=[];loginView()}});
+ document.addEventListener('visibilitychange',function(){if(!document.hidden&&authed&&!modal.firstChild)load()});
+}
+})();
+</script>
+</body>
+</html>
