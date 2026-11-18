@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Field Family ExtraSpace Storage Burbank Unit 895 Catalogue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#2f6f4f">
@@ -15,14 +18,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
-:root{--bg:#f6f5f1;--card:#fff;--tx:#1f2421;--mut:#6b726d;--ac:#2f6f4f;--acx:#fff;--bd:#e2e0d8;--dg:#b3392f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#181b19;--card:#222623;--tx:#eceee9;--mut:#9aa39c;--ac:#5fb88a;--acx:#10231a;--bd:#363b37;--dg:#e5776d}}
-:root[data-theme="dark"]{--bg:#181b19;--card:#222623;--tx:#eceee9;--mut:#9aa39c;--ac:#5fb88a;--acx:#10231a;--bd:#363b37;--dg:#e5776d}
+:root{--bg:#e6eae7;--card:#fff;--tx:#15231b;--mut:#56655c;--ac:#1d6a47;--acx:#fff;--bd:#c9d2cc;--dg:#b3392f;--lid:#f2a541;--lid2:#d68a26;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111814;--card:#1a231e;--tx:#e8efea;--mut:#8fa095;--ac:#6cc59a;--acx:#0c2016;--bd:#2a3730;--dg:#e5776d;--lid:#f2a541;--lid2:#d68a26}}
+:root[data-theme="dark"]{--bg:#111814;--card:#1a231e;--tx:#e8efea;--mut:#8fa095;--ac:#6cc59a;--acx:#0c2016;--bd:#2a3730;--dg:#e5776d;--lid:#f2a541;--lid2:#d68a26}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 "Barlow",system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:640px;margin:0 auto;padding:16px}
-h1{font-size:1.4rem;margin:.2rem 0 .8rem}
+h1{font-family:"Barlow Semi Condensed","Barlow",system-ui,sans-serif;font-weight:700;font-size:1.65rem;line-height:1.08;margin:.9rem 0 .5rem}
 .row{display:flex;gap:8px;align-items:center}
 .sp{justify-content:space-between}
 input,textarea{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit}
@@ -48,6 +51,28 @@ button.d{color:var(--dg)}
 .cat .head{transform-box:fill-box;transform-origin:50% 100%;animation:tilt 9s ease-in-out infinite}
 @keyframes tilt{0%,30%,100%{transform:rotate(0)}45%,60%{transform:rotate(5deg)}}
 @media(prefers-reduced-motion:reduce){.cat *{animation:none!important}}
+
+/* ---- redesign: tote-lid header, label cards ---- */
+.lidwrap{position:relative;margin:56px 0 14px}
+.lidwrap .cat{position:absolute;right:16px;bottom:calc(100% - 22px);width:96px;height:auto;z-index:1}
+.lidbar{position:relative;z-index:2;background:var(--lid);color:#2b1b05;border-radius:22px 22px 10px 10px;padding:16px 18px 24px;box-shadow:inset 0 -9px 0 var(--lid2)}
+.lidbar::before{content:"";display:block;width:84px;height:9px;border-radius:5px;background:var(--lid2);margin-bottom:12px}
+.lidbar h1{margin:0;color:#2b1b05}
+.bar{display:flex;gap:8px;margin:0 0 8px}.bar input{flex:1;min-width:0}
+button{border-radius:8px;min-height:44px;font-weight:500}
+button.p{font-weight:600}
+button:active{transform:translateY(1px)}
+input,textarea{border-radius:8px;min-height:44px}
+:focus-visible{outline:3px solid var(--lid2);outline-offset:2px}
+.card{border-radius:10px;border-left:6px solid var(--lid);padding:14px 14px 14px 12px}
+.card h3{font-family:"Barlow Semi Condensed","Barlow",system-ui,sans-serif;font-size:1.25rem;font-weight:700;line-height:1.15}
+.tile,.item,.hero{border-radius:10px}
+.tile b,.item b{font-weight:600}
+.msg{background:transparent;border:1px dashed var(--bd);color:var(--mut)}
+.sheet{border-radius:16px 16px 0 0;animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:0}}
+.label .n{font-family:"Barlow Semi Condensed","Barlow",system-ui,sans-serif;font-weight:700;font-size:1.7rem}
+@media(prefers-reduced-motion:reduce){.sheet{animation:none}}
 .labels{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
 .label{background:#fff;color:#000;border:1px dashed #999;padding:10px;text-align:center;border-radius:6px;break-inside:avoid}
 .label svg{width:100%;max-width:170px;height:auto}
@@ -66,6 +91,7 @@ var app=document.getElementById('app'),modal=document.getElementById('modal');
 var selMode=false,sel={},bulkBusy=false,gridView=true,authed=false,sb=null,downloads=null,boxes=[],ready=false,q='',err='';
 var base=location.origin+location.pathname;
 var CAT='<svg class="cat" viewBox="-6 -4 212 176" aria-hidden="true"><g class="head"><g class="earL"><polygon points="36,84 46,14 92,54" fill="#857867"/><polygon points="49,70 53,33 80,56" fill="#d9a39f"/><path d="M46 16 q-4 -8 -6 -12 M50 20 q-2 -8 -2 -12" stroke="var(--mut)" stroke-width="1.6" fill="none" stroke-linecap="round"/></g><g class="earR"><polygon points="164,84 154,14 108,54" fill="#857867"/><polygon points="151,70 147,33 120,56" fill="#d9a39f"/><path d="M154 16 q4 -8 6 -12 M150 20 q2 -8 2 -12" stroke="var(--mut)" stroke-width="1.6" fill="none" stroke-linecap="round"/></g><ellipse cx="100" cy="104" rx="70" ry="56" fill="#857867"/><path d="M32 112 l-12 6 l12 4 l-10 8 l16 0 Z M168 112 l12 6 l-12 4 l10 8 l-16 0 Z" fill="#857867"/><ellipse cx="100" cy="130" rx="32" ry="24" fill="#d6cdbd"/><g stroke="#3b342e" stroke-width="5" stroke-linecap="round" fill="none"><path d="M100 50 v22"/><path d="M84 54 l4 20"/><path d="M116 54 l-4 20"/><path d="M34 98 l20 5"/><path d="M33 112 l20 2"/><path d="M166 98 l-20 5"/><path d="M167 112 l-20 2"/></g><g><ellipse cx="70" cy="98" rx="19" ry="18" fill="#2b2622"/><circle cx="70" cy="98" r="15.5" fill="#93b7b0"/><ellipse cx="70" cy="99" rx="7.5" ry="12" fill="#17130f"/><circle cx="75" cy="92" r="3.6" fill="#fff"/><ellipse class="lid" cx="70" cy="98" rx="20" ry="19" fill="#857867"/></g><g><ellipse cx="130" cy="98" rx="19" ry="18" fill="#2b2622"/><circle cx="130" cy="98" r="15.5" fill="#93b7b0"/><ellipse cx="130" cy="99" rx="7.5" ry="12" fill="#17130f"/><circle cx="135" cy="92" r="3.6" fill="#fff"/><ellipse class="lid" cx="130" cy="98" rx="20" ry="19" fill="#857867"/></g><path d="M92 121 h16 l-8 10 Z" fill="#d9928f"/><path d="M100 131 v5 M100 136 q-6 6 -13 2 M100 136 q6 6 13 2" stroke="#3b342e" stroke-width="2" fill="none" stroke-linecap="round"/><g stroke="var(--mut)" stroke-width="1.6" stroke-linecap="round" opacity=".9"><path d="M76 134 L8 124"/><path d="M76 138 L6 142"/><path d="M78 142 L14 158"/><path d="M124 134 L192 124"/><path d="M124 138 L194 142"/><path d="M122 142 L186 158"/></g></g></svg>';
+var LID='<div class="lidwrap">'+CAT+'<header class="lidbar"><h1>Field Family ExtraSpace Storage Burbank Unit 895 Catalogue</h1></header></div>';
 // Supabase project URL and public (anon) key. Safe to publish; data is protected by sign-in rules.
 var SUPABASE_URL='https://slvwbngmnzqaiyrofqpj.supabase.co',SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsdndibmdtbnpxYWl5cm9mcXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0NTk4ODQsImV4cCI6MjExMDAzNTg4NH0._gVrSN56uxHpLtrnYZUyQpa5oQIEnMvF92G32xO57kQ';
 // ===========================================================
@@ -107,8 +133,7 @@ function render(){
 }
 function homeView(){
  var ql=q.trim().toLowerCase(),list=boxes.slice().sort(function(a,b){return(a.name||'').localeCompare(b.name||'',undefined,{numeric:true})});
- var out='<div class="row sp" style="flex-wrap:wrap"><div class="row" style="min-width:0;align-items:center;flex:1 1 100%">'+CAT+'<h1 style="font-size:1.15rem;margin:.2rem 0">Field Family ExtraSpace Storage Burbank Unit 895 Catalogue</h1></div><span class="row" style="margin-left:auto">'+(boxes.length?'<button data-a="sel">'+(selMode?'Done':'Select')+'</button>':'')+'<button class="p" data-a="newbox">+ Box</button></span></div>'+
- '<input id="q" type="search" placeholder="Search all boxes for an item…" value="'+esc(q)+'">';
+ var out=LID+'<div class="bar"><input id="q" type="search" placeholder="Search all boxes" value="'+esc(q)+'">'+(boxes.length?'<button data-a="sel">'+(selMode?'Done':'Select')+'</button>':'')+'<button class="p" data-a="newbox">+ Box</button></div>';
  if(ql){
   var hits=[];list.forEach(function(b){(b.items||[]).forEach(function(it){if((it.name+' '+(it.note||'')).toLowerCase().indexOf(ql)>-1||(b.name||'').toLowerCase().indexOf(ql)>-1&&!hits.length&&false)hits.push({b:b,it:it})})});
   out+='<p class="mut">'+hits.length+' match'+(hits.length===1?'':'es')+'</p>';
@@ -254,7 +279,7 @@ function exportCsv(){
 window.addEventListener('hashchange',function(){selMode=false;sel={};closeM();render()});
 downloads={save:function(o){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([o.data],{type:'text/csv;charset=utf-8'}));a.download=o.filename;document.body.appendChild(a);a.click();a.remove();return Promise.resolve()}};
 function loginView(msg){
- app.innerHTML='<div class="row" style="min-width:0;align-items:center">'+CAT+'<h1 style="font-size:1.15rem;margin:.2rem 0">Field Family ExtraSpace Storage Burbank Unit 895 Catalogue</h1></div><p class="mut">Sign in to view and edit the inventory.</p><input id="em" type="email" placeholder="Email" autocomplete="username"><div style="height:8px"></div><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><p><button class="p" id="sg" style="width:100%">Sign in</button></p><p><button id="ml" style="width:100%">Email me a sign-in link instead</button></p>'+(msg?'<div class="msg">'+esc(msg)+'</div>':'');
+ app.innerHTML=''+LID+'<p class="mut">Sign in to view and edit the inventory.</p><input id="em" type="email" placeholder="Email" autocomplete="username"><div style="height:8px"></div><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><p><button class="p" id="sg" style="width:100%">Sign in</button></p><p><button id="ml" style="width:100%">Email me a sign-in link instead</button></p>'+(msg?'<div class="msg">'+esc(msg)+'</div>':'');
  function em(){return document.getElementById('em').value.trim()}
  document.getElementById('sg').onclick=function(){var e=em(),pw=document.getElementById('pw').value;if(!e||!pw)return;
   sb.auth.signInWithPassword({email:e,password:pw}).then(function(r){if(r.error)loginView('Sign-in failed: '+r.error.message)})};
